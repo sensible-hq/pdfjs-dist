@@ -173,7 +173,7 @@ var WorkerMessageHandler = /*#__PURE__*/function () {
       var WorkerTasks = [];
       var verbosity = (0, _util.getVerbosityLevel)();
       var apiVersion = docParams.apiVersion;
-      var workerVersion = '2.10.15';
+      var workerVersion = '2.10.19';
 
       if (apiVersion !== workerVersion) {
         throw new Error("The API version \"".concat(apiVersion, "\" does not match ") + "the Worker version \"".concat(workerVersion, "\"."));
@@ -461,6 +461,7 @@ var WorkerMessageHandler = /*#__PURE__*/function () {
           ignoreErrors: data.ignoreErrors,
           isEvalSupported: data.isEvalSupported,
           fontExtraProperties: data.fontExtraProperties,
+          useSystemFonts: data.useSystemFonts,
           standardFontDataUrl: data.standardFontDataUrl
         };
         getPdfManager(data, evaluatorOptions, data.enableXfa).then(function (newPdfManager) {
@@ -17563,7 +17564,8 @@ var DefaultPartialEvaluatorOptions = Object.freeze({
   ignoreErrors: false,
   isEvalSupported: true,
   fontExtraProperties: false,
-  standardFontDataUrl: null
+  standardFontDataUrl: null,
+  useSystemFonts: true
 });
 var PatternType = {
   TILING: 1,
@@ -17962,63 +17964,71 @@ var PartialEvaluator = /*#__PURE__*/function () {
           while (1) {
             switch (_context2.prev = _context2.next) {
               case 0:
+                if (!(this.options.useSystemFonts && name !== "Symbol" && name !== "ZapfDingbats")) {
+                  _context2.next = 2;
+                  break;
+                }
+
+                return _context2.abrupt("return", null);
+
+              case 2:
                 standardFontNameToFileName = (0, _standard_fonts.getStdFontNameToFileMap)();
                 filename = standardFontNameToFileName[name];
 
                 if (!(this.options.standardFontDataUrl !== null)) {
-                  _context2.next = 15;
+                  _context2.next = 17;
                   break;
                 }
 
                 url = "".concat(this.options.standardFontDataUrl).concat(filename, ".pfb");
-                _context2.next = 6;
+                _context2.next = 8;
                 return fetch(url);
 
-              case 6:
+              case 8:
                 response = _context2.sent;
 
                 if (response.ok) {
-                  _context2.next = 10;
+                  _context2.next = 12;
                   break;
                 }
 
                 (0, _util.warn)("fetchStandardFontData failed to fetch file \"".concat(url, "\" with \"").concat(response.statusText, "\"."));
                 return _context2.abrupt("return", null);
 
-              case 10:
+              case 12:
                 _context2.t0 = _stream.Stream;
-                _context2.next = 13;
+                _context2.next = 15;
                 return response.arrayBuffer();
 
-              case 13:
+              case 15:
                 _context2.t1 = _context2.sent;
                 return _context2.abrupt("return", new _context2.t0(_context2.t1));
 
-              case 15:
-                _context2.prev = 15;
-                _context2.next = 18;
+              case 17:
+                _context2.prev = 17;
+                _context2.next = 20;
                 return this.handler.sendWithPromise("FetchStandardFontData", {
                   filename: filename
                 });
 
-              case 18:
+              case 20:
                 data = _context2.sent;
                 return _context2.abrupt("return", new _stream.Stream(data));
 
-              case 22:
-                _context2.prev = 22;
-                _context2.t2 = _context2["catch"](15);
+              case 24:
+                _context2.prev = 24;
+                _context2.t2 = _context2["catch"](17);
                 (0, _util.warn)("fetchStandardFontData failed to fetch file \"".concat(filename, "\" with \"").concat(_context2.t2, "\"."));
 
-              case 25:
+              case 27:
                 return _context2.abrupt("return", null);
 
-              case 26:
+              case 28:
               case "end":
                 return _context2.stop();
             }
           }
-        }, _callee2, this, [[15, 22]]);
+        }, _callee2, this, [[17, 24]]);
       }));
 
       function fetchStandardFontData(_x2) {
@@ -21242,7 +21252,7 @@ var PartialEvaluator = /*#__PURE__*/function () {
       var _translateFont = _asyncToGenerator( /*#__PURE__*/_regenerator["default"].mark(function _callee8(_ref10) {
         var _this11 = this;
 
-        var descriptor, dict, baseDict, composite, type, firstChar, lastChar, toUnicode, cssFontInfo, isType3Font, properties, baseFontName, metrics, fontNameWoStyle, flags, widths, standardFontName, file, fontName, baseFont, fontNameStr, baseFontStr, fontFile, subtype, length1, length2, length3, isStandardFont, subtypeEntry, _standardFontName, cidEncoding, cMap;
+        var descriptor, dict, baseDict, composite, type, firstChar, lastChar, toUnicode, cssFontInfo, isType3Font, properties, baseFontName, metrics, fontNameWoStyle, flags, widths, standardFontName, file, fontName, baseFont, fontNameStr, baseFontStr, fontFile, subtype, length1, length2, length3, isStandardFont, isInternalFont, subtypeEntry, _standardFontName, cidEncoding, cMap;
 
         return _regenerator["default"].wrap(function _callee8$(_context8) {
           while (1) {
@@ -21252,7 +21262,7 @@ var PartialEvaluator = /*#__PURE__*/function () {
                 isType3Font = type === "Type3";
 
                 if (descriptor) {
-                  _context8.next = 26;
+                  _context8.next = 27;
                   break;
                 }
 
@@ -21264,7 +21274,7 @@ var PartialEvaluator = /*#__PURE__*/function () {
                 descriptor = new _primitives.Dict(null);
                 descriptor.set("FontName", _primitives.Name.get(type));
                 descriptor.set("FontBBox", dict.getArray("FontBBox") || [0, 0, 0, 0]);
-                _context8.next = 26;
+                _context8.next = 27;
                 break;
 
               case 9:
@@ -21299,18 +21309,19 @@ var PartialEvaluator = /*#__PURE__*/function () {
                 file = null;
 
                 if (!standardFontName) {
-                  _context8.next = 25;
+                  _context8.next = 26;
                   break;
                 }
 
-                _context8.next = 23;
+                properties.isStandardFont = true;
+                _context8.next = 24;
                 return this.fetchStandardFontData(standardFontName);
 
-              case 23:
+              case 24:
                 file = _context8.sent;
-                properties.isStandardFont = !!file;
+                properties.isInternalFont = !!file;
 
-              case 25:
+              case 26:
                 return _context8.abrupt("return", this.extractDataStructures(dict, dict, properties).then(function (newProperties) {
                   if (widths) {
                     var glyphWidths = [];
@@ -21328,7 +21339,7 @@ var PartialEvaluator = /*#__PURE__*/function () {
                   return new _fonts.Font(baseFontName, file, newProperties);
                 }));
 
-              case 26:
+              case 27:
                 fontName = descriptor.get("FontName");
                 baseFont = dict.get("BaseFont");
 
@@ -21356,38 +21367,39 @@ var PartialEvaluator = /*#__PURE__*/function () {
                 fontName = fontName || baseFont;
 
                 if ((0, _primitives.isName)(fontName)) {
-                  _context8.next = 34;
+                  _context8.next = 35;
                   break;
                 }
 
                 throw new _util.FormatError("invalid font name");
 
-              case 34:
-                _context8.prev = 34;
+              case 35:
+                _context8.prev = 35;
                 fontFile = descriptor.get("FontFile", "FontFile2", "FontFile3");
-                _context8.next = 44;
+                _context8.next = 45;
                 break;
 
-              case 38:
-                _context8.prev = 38;
-                _context8.t0 = _context8["catch"](34);
+              case 39:
+                _context8.prev = 39;
+                _context8.t0 = _context8["catch"](35);
 
                 if (this.options.ignoreErrors) {
-                  _context8.next = 42;
+                  _context8.next = 43;
                   break;
                 }
 
                 throw _context8.t0;
 
-              case 42:
+              case 43:
                 (0, _util.warn)("translateFont - fetching \"".concat(fontName.name, "\" font file: \"").concat(_context8.t0, "\"."));
                 fontFile = new _stream.NullStream();
 
-              case 44:
+              case 45:
                 isStandardFont = false;
+                isInternalFont = false;
 
                 if (!fontFile) {
-                  _context8.next = 49;
+                  _context8.next = 51;
                   break;
                 }
 
@@ -21403,30 +21415,31 @@ var PartialEvaluator = /*#__PURE__*/function () {
                   length3 = fontFile.dict.get("Length3");
                 }
 
-                _context8.next = 56;
+                _context8.next = 59;
                 break;
 
-              case 49:
+              case 51:
                 if (!(type === "Type1")) {
-                  _context8.next = 56;
+                  _context8.next = 59;
                   break;
                 }
 
                 _standardFontName = (0, _standard_fonts.getStandardFontName)(fontName.name);
 
                 if (!_standardFontName) {
-                  _context8.next = 56;
+                  _context8.next = 59;
                   break;
                 }
 
-                _context8.next = 54;
+                isStandardFont = true;
+                _context8.next = 57;
                 return this.fetchStandardFontData(_standardFontName);
 
-              case 54:
+              case 57:
                 fontFile = _context8.sent;
-                isStandardFont = !!fontFile;
+                isInternalFont = !!fontFile;
 
-              case 56:
+              case 59:
                 properties = {
                   type: type,
                   name: fontName.name,
@@ -21436,6 +21449,7 @@ var PartialEvaluator = /*#__PURE__*/function () {
                   length2: length2,
                   length3: length3,
                   isStandardFont: isStandardFont,
+                  isInternalFont: isInternalFont,
                   loadedName: baseDict.loadedName,
                   composite: composite,
                   fixedPitch: false,
@@ -21455,7 +21469,7 @@ var PartialEvaluator = /*#__PURE__*/function () {
                 };
 
                 if (!composite) {
-                  _context8.next = 65;
+                  _context8.next = 68;
                   break;
                 }
 
@@ -21465,31 +21479,31 @@ var PartialEvaluator = /*#__PURE__*/function () {
                   properties.cidEncoding = cidEncoding.name;
                 }
 
-                _context8.next = 62;
+                _context8.next = 65;
                 return _cmap.CMapFactory.create({
                   encoding: cidEncoding,
                   fetchBuiltInCMap: this._fetchBuiltInCMapBound,
                   useCMap: null
                 });
 
-              case 62:
+              case 65:
                 cMap = _context8.sent;
                 properties.cMap = cMap;
                 properties.vertical = properties.cMap.vertical;
 
-              case 65:
+              case 68:
                 return _context8.abrupt("return", this.extractDataStructures(dict, baseDict, properties).then(function (newProperties) {
                   _this11.extractWidths(dict, descriptor, newProperties);
 
                   return new _fonts.Font(fontName.name, fontFile, newProperties);
                 }));
 
-              case 66:
+              case 69:
               case "end":
                 return _context8.stop();
             }
           }
-        }, _callee8, this, [[34, 38]]);
+        }, _callee8, this, [[35, 39]]);
       }));
 
       function translateFont(_x14) {
@@ -34179,6 +34193,10 @@ function adjustWidths(properties) {
 }
 
 function adjustToUnicode(properties, builtInEncoding) {
+  if (properties.isInternalFont) {
+    return;
+  }
+
   if (properties.hasIncludedToUnicodeMap) {
     return;
   }
@@ -34975,7 +34993,7 @@ var Font = /*#__PURE__*/function () {
       }
 
       this.loadedName = fontName.split("-")[0];
-      this.fontType = (0, _fonts_utils.getFontType)(type, subtype);
+      this.fontType = (0, _fonts_utils.getFontType)(type, subtype, properties.isStandardFont);
     }
   }, {
     key: "checkAndRepair",
@@ -87117,8 +87135,8 @@ Object.defineProperty(exports, "WorkerMessageHandler", ({
 
 var _worker = __w_pdfjs_require__(1);
 
-var pdfjsVersion = '2.10.15';
-var pdfjsBuild = '101586410';
+var pdfjsVersion = '2.10.19';
+var pdfjsBuild = '2c2f0d1a3';
 })();
 
 /******/ 	return __webpack_exports__;

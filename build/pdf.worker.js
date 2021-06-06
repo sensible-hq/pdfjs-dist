@@ -125,7 +125,7 @@ class WorkerMessageHandler {
     const WorkerTasks = [];
     const verbosity = (0, _util.getVerbosityLevel)();
     const apiVersion = docParams.apiVersion;
-    const workerVersion = '2.10.15';
+    const workerVersion = '2.10.19';
 
     if (apiVersion !== workerVersion) {
       throw new Error(`The API version "${apiVersion}" does not match ` + `the Worker version "${workerVersion}".`);
@@ -370,6 +370,7 @@ class WorkerMessageHandler {
         ignoreErrors: data.ignoreErrors,
         isEvalSupported: data.isEvalSupported,
         fontExtraProperties: data.fontExtraProperties,
+        useSystemFonts: data.useSystemFonts,
         standardFontDataUrl: data.standardFontDataUrl
       };
       getPdfManager(data, evaluatorOptions, data.enableXfa).then(function (newPdfManager) {
@@ -8121,7 +8122,8 @@ const DefaultPartialEvaluatorOptions = Object.freeze({
   ignoreErrors: false,
   isEvalSupported: true,
   fontExtraProperties: false,
-  standardFontDataUrl: null
+  standardFontDataUrl: null,
+  useSystemFonts: true
 });
 const PatternType = {
   TILING: 1,
@@ -8432,6 +8434,10 @@ class PartialEvaluator {
   }
 
   async fetchStandardFontData(name) {
+    if (this.options.useSystemFonts && name !== "Symbol" && name !== "ZapfDingbats") {
+      return null;
+    }
+
     const standardFontNameToFileName = (0, _standard_fonts.getStdFontNameToFileMap)();
     const filename = standardFontNameToFileName[name];
 
@@ -11413,8 +11419,9 @@ class PartialEvaluator {
         let file = null;
 
         if (standardFontName) {
+          properties.isStandardFont = true;
           file = await this.fetchStandardFontData(standardFontName);
-          properties.isStandardFont = !!file;
+          properties.isInternalFont = !!file;
         }
 
         return this.extractDataStructures(dict, dict, properties).then(newProperties => {
@@ -11480,6 +11487,7 @@ class PartialEvaluator {
     }
 
     let isStandardFont = false;
+    let isInternalFont = false;
 
     if (fontFile) {
       if (fontFile.dict) {
@@ -11497,8 +11505,9 @@ class PartialEvaluator {
       const standardFontName = (0, _standard_fonts.getStandardFontName)(fontName.name);
 
       if (standardFontName) {
+        isStandardFont = true;
         fontFile = await this.fetchStandardFontData(standardFontName);
-        isStandardFont = !!fontFile;
+        isInternalFont = !!fontFile;
       }
     }
 
@@ -11511,6 +11520,7 @@ class PartialEvaluator {
       length2,
       length3,
       isStandardFont,
+      isInternalFont,
       loadedName: baseDict.loadedName,
       composite,
       fixedPitch: false,
@@ -22960,6 +22970,10 @@ function adjustWidths(properties) {
 }
 
 function adjustToUnicode(properties, builtInEncoding) {
+  if (properties.isInternalFont) {
+    return;
+  }
+
   if (properties.hasIncludedToUnicodeMap) {
     return;
   }
@@ -23727,7 +23741,7 @@ class Font {
     }
 
     this.loadedName = fontName.split("-")[0];
-    this.fontType = (0, _fonts_utils.getFontType)(type, subtype);
+    this.fontType = (0, _fonts_utils.getFontType)(type, subtype, properties.isStandardFont);
   }
 
   checkAndRepair(name, font, properties) {
@@ -68484,8 +68498,8 @@ Object.defineProperty(exports, "WorkerMessageHandler", ({
 
 var _worker = __w_pdfjs_require__(1);
 
-const pdfjsVersion = '2.10.15';
-const pdfjsBuild = '101586410';
+const pdfjsVersion = '2.10.19';
+const pdfjsBuild = '2c2f0d1a3';
 })();
 
 /******/ 	return __webpack_exports__;

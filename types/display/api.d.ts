@@ -82,17 +82,23 @@ export type DocumentInitParameters = {
      */
     CMapReaderFactory?: Object | undefined;
     /**
+     * - When true, fonts that aren't embedded
+     * in the PDF will fallback to a system font. Defaults to true for web
+     * environments and false for node.
+     */
+    useSystemFonts?: boolean | undefined;
+    /**
      * - The URL where the standard font
      * files are located. Include the trailing slash.
      */
     standardFontDataUrl?: string | undefined;
     /**
-     * - Enable fetching the font
-     * data from the worker thread. When `true`, StandardFontDataFactory will be
-     * ignored. The default value is `true` in web environment and `false` for
-     * for Node.
+     * - Enable using fetch in the worker for
+     * resources. This currently only used for fetching the font data from the
+     * worker thread. When `true`, StandardFontDataFactory will be ignored. The
+     * default value is `true` in web environment and `false` for Node.
      */
-    standardFontDataWorkerFetch?: boolean | undefined;
+    useWorkerFetch?: boolean | undefined;
     /**
      * - The factory that will be used
      * when reading the standard font files. Providing a custom factory is useful
@@ -537,12 +543,15 @@ export const DefaultStandardFontDataFactory: typeof DOMStandardFontDataFactory |
  *   reading built-in CMap files. Providing a custom factory is useful for
  *   environments without Fetch API or `XMLHttpRequest` support, such as
  *   Node.js. The default value is {DOMCMapReaderFactory}.
+ * @property {boolean} [useSystemFonts] - When true, fonts that aren't embedded
+ *   in the PDF will fallback to a system font. Defaults to true for web
+ *   environments and false for node.
  * @property {string} [standardFontDataUrl] - The URL where the standard font
  *   files are located. Include the trailing slash.
- * @property {boolean} [standardFontDataWorkerFetch] - Enable fetching the font
- *   data from the worker thread. When `true`, StandardFontDataFactory will be
- *   ignored. The default value is `true` in web environment and `false` for
- *   for Node.
+ * @property {boolean} [useWorkerFetch] - Enable using fetch in the worker for
+ *   resources. This currently only used for fetching the font data from the
+ *   worker thread. When `true`, StandardFontDataFactory will be ignored. The
+ *   default value is `true` in web environment and `false` for Node.
  * @property {Object} [StandardFontDataFactory] - The factory that will be used
  *   when reading the standard font files. Providing a custom factory is useful
  *   for environments without Fetch API or `XMLHttpRequest` support, such as

@@ -1742,8 +1742,12 @@ function getDocument(src) {
     params.maxImageSize = -1;
   }
 
-  if (typeof params.standardFontDataWorkerFetch !== "boolean") {
-    params.standardFontDataWorkerFetch = params.StandardFontDataFactory instanceof _display_utils.DOMStandardFontDataFactory;
+  if (typeof params.useSystemFonts !== "boolean") {
+    params.useSystemFonts = !_is_node.isNodeJS;
+  }
+
+  if (typeof params.useWorkerFetch !== "boolean") {
+    params.useWorkerFetch = params.StandardFontDataFactory === _display_utils.DOMStandardFontDataFactory;
   }
 
   if (typeof params.isEvalSupported !== "boolean") {
@@ -1844,7 +1848,7 @@ function _fetchDocument(worker, source, pdfDataRangeTransport, docId) {
 
   return worker.messageHandler.sendWithPromise("GetDocRequest", {
     docId,
-    apiVersion: '2.10.15',
+    apiVersion: '2.10.19',
     source: {
       data: source.data,
       url: source.url,
@@ -1861,7 +1865,8 @@ function _fetchDocument(worker, source, pdfDataRangeTransport, docId) {
     isEvalSupported: source.isEvalSupported,
     fontExtraProperties: source.fontExtraProperties,
     enableXfa: source.enableXfa,
-    standardFontDataUrl: source.standardFontDataWorkerFetch ? source.standardFontDataUrl : null
+    useSystemFonts: source.useSystemFonts,
+    standardFontDataUrl: source.useWorkerFetch ? source.standardFontDataUrl : null
   }).then(function (workerId) {
     if (worker.destroyed) {
       throw new Error("Worker was destroyed");
@@ -3907,9 +3912,9 @@ const InternalRenderTask = function InternalRenderTaskClosure() {
   return InternalRenderTask;
 }();
 
-const version = '2.10.15';
+const version = '2.10.19';
 exports.version = version;
-const build = '101586410';
+const build = '2c2f0d1a3';
 exports.build = build;
 
 /***/ }),
@@ -6926,7 +6931,11 @@ class RadialAxialShadingPattern extends BaseShadingPattern {
     tmpCtx.fillStyle = grad;
     tmpCtx.fill();
     const pattern = ctx.createPattern(tmpCanvas.canvas, "repeat");
-    pattern.setTransform(createMatrix(ctx.mozCurrentTransformInverse));
+
+    if (typeof document != "undefined") {
+      pattern.setTransform(createMatrix(ctx.mozCurrentTransformInverse));
+    }
+
     return pattern;
   }
 
@@ -7342,10 +7351,14 @@ class TilingPattern {
     }
 
     const temporaryPatternCanvas = this.createPatternCanvas(owner);
-    let domMatrix = createMatrix(matrix);
-    domMatrix = domMatrix.scale(1 / temporaryPatternCanvas.scaleX, 1 / temporaryPatternCanvas.scaleY);
     const pattern = ctx.createPattern(temporaryPatternCanvas.canvas, "repeat");
-    pattern.setTransform(domMatrix);
+
+    if (typeof document != "undefined") {
+      let domMatrix = createMatrix(matrix);
+      domMatrix = domMatrix.scale(1 / temporaryPatternCanvas.scaleX, 1 / temporaryPatternCanvas.scaleY);
+      pattern.setTransform(domMatrix);
+    }
+
     return pattern;
   }
 
@@ -14649,8 +14662,8 @@ var _svg = __w_pdfjs_require__(20);
 
 var _xfa_layer = __w_pdfjs_require__(21);
 
-const pdfjsVersion = '2.10.15';
-const pdfjsBuild = '101586410';
+const pdfjsVersion = '2.10.19';
+const pdfjsBuild = '2c2f0d1a3';
 {
   const {
     isNodeJS
