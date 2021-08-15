@@ -1,5 +1,5 @@
 {
-  "name": "pdfjs-dist",
+  "name": "pdfjs-sensible",
   "version": "2.7.571",
   "main": "build/pdf.js",
   "types": "types/pdf.d.ts",
