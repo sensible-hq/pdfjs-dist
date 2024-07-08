@@ -50,8 +50,8 @@ Object.defineProperty(exports, "WorkerMessageHandler", ({
 
 var _worker = __w_pdfjs_require__(1);
 
-const pdfjsVersion = '2.7.571';
-const pdfjsBuild = '4543a4c66';
+const pdfjsVersion = '2.7.576';
+const pdfjsBuild = '223d9cfcc';
 
 /***/ }),
 /* 1 */
@@ -145,7 +145,7 @@ class WorkerMessageHandler {
     var WorkerTasks = [];
     const verbosity = (0, _util.getVerbosityLevel)();
     const apiVersion = docParams.apiVersion;
-    const workerVersion = '2.7.571';
+    const workerVersion = '2.7.576';
 
     if (apiVersion !== workerVersion) {
       throw new Error(`The API version "${apiVersion}" does not match ` + `the Worker version "${workerVersion}".`);
@@ -24666,7 +24666,7 @@ class PartialEvaluator {
         var length2 = fontFile.dict.get("Length2");
         var length3 = fontFile.dict.get("Length3");
       }
-    } else if (type === "Type1") {
+    } else {
       const standardFontName = (0, _standard_fonts.getStandardFontName)(fontName.name);
 
       if (standardFontName) {
@@ -40896,6 +40896,11 @@ const getStdFontMap = (0, _core_utils.getLookupTableFactory)(function (t) {
   t["TimesNewRomanPSMT-Bold"] = "Times-Bold";
   t["TimesNewRomanPSMT-BoldItalic"] = "Times-BoldItalic";
   t["TimesNewRomanPSMT-Italic"] = "Times-Italic";
+  t.MyriadPro = "Helvetica";
+  t["MyriadPro-Regular"] = "Helvetica";
+  t["MyriadPro-Bold"] = "Helvetica-Bold";
+  t["MyriadPro-Italic"] = "Helvetica-Oblique";
+  t["MyriadPro-BoldItalic"] = "Helvetica-BoldOblique";
 });
 exports.getStdFontMap = getStdFontMap;
 const getStdFontNameToFileMap = (0, _core_utils.getLookupTableFactory)(function (t) {
