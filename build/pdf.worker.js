@@ -50,8 +50,8 @@ Object.defineProperty(exports, "WorkerMessageHandler", ({
 
 var _worker = __w_pdfjs_require__(1);
 
-const pdfjsVersion = '2.7.576';
-const pdfjsBuild = '223d9cfcc';
+const pdfjsVersion = '2.7.577';
+const pdfjsBuild = '11112fa1a';
 
 /***/ }),
 /* 1 */
@@ -145,7 +145,7 @@ class WorkerMessageHandler {
     var WorkerTasks = [];
     const verbosity = (0, _util.getVerbosityLevel)();
     const apiVersion = docParams.apiVersion;
-    const workerVersion = '2.7.576';
+    const workerVersion = '2.7.577';
 
     if (apiVersion !== workerVersion) {
       throw new Error(`The API version "${apiVersion}" does not match ` + `the Worker version "${workerVersion}".`);
@@ -23733,7 +23733,7 @@ class PartialEvaluator {
                   advance = -advance;
                   offset = advance * textState.textHScale;
                   textState.translateTextMatrix(offset, 0);
-                  breakTextRun = textContentItem.textRunBreakAllowed && advance > textContentItem.fakeMultiSpaceMax;
+                  breakTextRun = textContentItem.textRunBreakAllowed && Math.abs(advance) > textContentItem.fakeMultiSpaceMax;
 
                   if (!breakTextRun) {
                     textContentItem.width += offset;
