@@ -50,8 +50,8 @@ Object.defineProperty(exports, "WorkerMessageHandler", ({
 
 var _worker = __w_pdfjs_require__(1);
 
-var pdfjsVersion = '2.7.577';
-var pdfjsBuild = '11112fa1a';
+var pdfjsVersion = '2.7.579';
+var pdfjsBuild = '29ec22dbb';
 
 /***/ }),
 /* 1 */
@@ -194,7 +194,7 @@ var WorkerMessageHandler = /*#__PURE__*/function () {
       var WorkerTasks = [];
       var verbosity = (0, _util.getVerbosityLevel)();
       var apiVersion = docParams.apiVersion;
-      var workerVersion = '2.7.577';
+      var workerVersion = '2.7.579';
 
       if (apiVersion !== workerVersion) {
         throw new Error("The API version \"".concat(apiVersion, "\" does not match ") + "the Worker version \"".concat(workerVersion, "\"."));
@@ -30189,6 +30189,8 @@ var _writer = __w_pdfjs_require__(176);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
 function _get(target, property, receiver) { if (typeof Reflect !== "undefined" && Reflect.get) { _get = Reflect.get; } else { _get = function _get(target, property, receiver) { var base = _superPropBase(target, property); if (!base) return; var desc = Object.getOwnPropertyDescriptor(base, property); if (desc.get) { return desc.get.call(receiver); } return desc.value; }; } return _get(target, property, receiver || target); }
 
 function _superPropBase(object, property) { while (!Object.prototype.hasOwnProperty.call(object, property)) { object = _getPrototypeOf(object); if (object === null) break; } return object; }
@@ -30254,6 +30256,7 @@ var AnnotationFactory = /*#__PURE__*/function () {
         return undefined;
       }
 
+      var acroFormDict = acroForm instanceof _primitives.Dict ? acroForm : _primitives.Dict.empty;
       var id = (0, _primitives.isRef)(ref) ? ref.toString() : "annot_".concat(idFactory.createObjId());
       var subtype = dict.get("Subtype");
       subtype = (0, _primitives.isName)(subtype) ? subtype.name : null;
@@ -30264,7 +30267,8 @@ var AnnotationFactory = /*#__PURE__*/function () {
         subtype: subtype,
         id: id,
         pdfManager: pdfManager,
-        acroForm: acroForm instanceof _primitives.Dict ? acroForm : _primitives.Dict.empty
+        acroForm: acroFormDict,
+        needAppearances: acroFormDict.get("NeedAppearances") === true
       };
 
       switch (subtype) {
@@ -31051,6 +31055,7 @@ var WidgetAnnotation = /*#__PURE__*/function (_Annotation2) {
     var dict = params.dict;
     var data = _this4.data;
     _this4.ref = params.ref;
+    _this4.needAppearances = params.needAppearances;
     data.annotationType = _util.AnnotationType.WIDGET;
     data.fieldName = _this4._constructFieldName(dict);
     data.actions = (0, _core_utils.collectActions)(params.xref, dict, _util.AnnotationActionEventType);
@@ -31188,75 +31193,120 @@ var WidgetAnnotation = /*#__PURE__*/function (_Annotation2) {
         return _get(_getPrototypeOf(WidgetAnnotation.prototype), "getOperatorList", this).call(this, evaluator, task, renderForms, annotationStorage);
       }
 
-      return this._getAppearance(evaluator, task, annotationStorage).then(function (content) {
-        if (_this5.appearance && content === null) {
-          return _get(_getPrototypeOf(WidgetAnnotation.prototype), "getOperatorList", _this5).call(_this5, evaluator, task, renderForms, annotationStorage);
-        }
+      return this._getAppearance(evaluator, task, annotationStorage).then( /*#__PURE__*/function () {
+        var _ref4 = _asyncToGenerator( /*#__PURE__*/_regenerator["default"].mark(function _callee2(content) {
+          var operatorList, matrix, bbox, transform, stream, fallbackFontDict;
+          return _regenerator["default"].wrap(function _callee2$(_context2) {
+            while (1) {
+              switch (_context2.prev = _context2.next) {
+                case 0:
+                  if (!_this5.needAppearances) {
+                    _context2.next = 4;
+                    break;
+                  }
 
-        var operatorList = new _operator_list.OperatorList();
+                  _context2.next = 3;
+                  return _this5._getAppearance(evaluator, task, _defineProperty({}, _this5.data.id, {
+                    value: _this5.data.fieldValue
+                  }));
 
-        if (!_this5.data.defaultAppearance || content === null) {
-          return operatorList;
-        }
+                case 3:
+                  content = _context2.sent;
 
-        var matrix = [1, 0, 0, 1, 0, 0];
-        var bbox = [0, 0, _this5.data.rect[2] - _this5.data.rect[0], _this5.data.rect[3] - _this5.data.rect[1]];
-        var transform = getTransformMatrix(_this5.data.rect, bbox, matrix);
-        operatorList.addOp(_util.OPS.beginAnnotation, [_this5.data.rect, transform, matrix]);
-        var stream = new _stream.StringStream(content);
-        return evaluator.getOperatorList({
-          stream: stream,
-          task: task,
-          resources: _this5._fieldResources.mergedResources,
-          operatorList: operatorList
-        }).then(function () {
-          operatorList.addOp(_util.OPS.endAnnotation, []);
-          return operatorList;
-        });
-      });
+                case 4:
+                  if (!(_this5.appearance && content === null)) {
+                    _context2.next = 6;
+                    break;
+                  }
+
+                  return _context2.abrupt("return", _get(_getPrototypeOf(WidgetAnnotation.prototype), "getOperatorList", _this5).call(_this5, evaluator, task, renderForms, annotationStorage));
+
+                case 6:
+                  operatorList = new _operator_list.OperatorList();
+
+                  if (!(!_this5.data.defaultAppearance || content === null)) {
+                    _context2.next = 9;
+                    break;
+                  }
+
+                  return _context2.abrupt("return", operatorList);
+
+                case 9:
+                  matrix = [1, 0, 0, 1, 0, 0];
+                  bbox = [0, 0, _this5.data.rect[2] - _this5.data.rect[0], _this5.data.rect[3] - _this5.data.rect[1]];
+                  transform = getTransformMatrix(_this5.data.rect, bbox, matrix);
+                  operatorList.addOp(_util.OPS.beginAnnotation, [_this5.data.rect, transform, matrix]);
+                  stream = new _stream.StringStream(content);
+                  fallbackFontDict = new _primitives.Dict();
+                  fallbackFontDict.set("BaseFont", _primitives.Name.get("Helvetica"));
+                  fallbackFontDict.set("Type", _primitives.Name.get("Font"));
+                  fallbackFontDict.set("Subtype", _primitives.Name.get("Type1"));
+                  return _context2.abrupt("return", evaluator.getOperatorList({
+                    stream: stream,
+                    task: task,
+                    resources: _this5._fieldResources.mergedResources,
+                    operatorList: operatorList,
+                    fallbackFontDict: fallbackFontDict
+                  }).then(function () {
+                    operatorList.addOp(_util.OPS.endAnnotation, []);
+                    return operatorList;
+                  }));
+
+                case 19:
+                case "end":
+                  return _context2.stop();
+              }
+            }
+          }, _callee2);
+        }));
+
+        return function (_x4) {
+          return _ref4.apply(this, arguments);
+        };
+      }());
     }
   }, {
     key: "save",
     value: function () {
-      var _save2 = _asyncToGenerator( /*#__PURE__*/_regenerator["default"].mark(function _callee2(evaluator, task, annotationStorage) {
+      var _save2 = _asyncToGenerator( /*#__PURE__*/_regenerator["default"].mark(function _callee3(evaluator, task, annotationStorage) {
         var value, appearance, xref, dict, bbox, xfa, newRef, AP, encrypt, originalTransform, newTransform, appearanceDict, bufferOriginal, bufferNew;
-        return _regenerator["default"].wrap(function _callee2$(_context2) {
+        return _regenerator["default"].wrap(function _callee3$(_context3) {
           while (1) {
-            switch (_context2.prev = _context2.next) {
+            switch (_context3.prev = _context3.next) {
               case 0:
                 value = annotationStorage[this.data.id] && annotationStorage[this.data.id].value;
 
                 if (!(value === this.data.fieldValue || value === undefined)) {
-                  _context2.next = 3;
+                  _context3.next = 3;
                   break;
                 }
 
-                return _context2.abrupt("return", null);
+                return _context3.abrupt("return", null);
 
               case 3:
-                _context2.next = 5;
+                _context3.next = 5;
                 return this._getAppearance(evaluator, task, annotationStorage);
 
               case 5:
-                appearance = _context2.sent;
+                appearance = _context3.sent;
 
                 if (!(appearance === null)) {
-                  _context2.next = 8;
+                  _context3.next = 8;
                   break;
                 }
 
-                return _context2.abrupt("return", null);
+                return _context3.abrupt("return", null);
 
               case 8:
                 xref = evaluator.xref;
                 dict = xref.fetchIfRef(this.ref);
 
                 if ((0, _primitives.isDict)(dict)) {
-                  _context2.next = 12;
+                  _context3.next = 12;
                   break;
                 }
 
-                return _context2.abrupt("return", null);
+                return _context3.abrupt("return", null);
 
               case 12:
                 bbox = [0, 0, this.data.rect[2] - this.data.rect[0], this.data.rect[3] - this.data.rect[1]];
@@ -31293,7 +31343,7 @@ var WidgetAnnotation = /*#__PURE__*/function (_Annotation2) {
                 bufferNew.push(" stream\n");
                 bufferNew.push(appearance);
                 bufferNew.push("\nendstream\nendobj\n");
-                return _context2.abrupt("return", [{
+                return _context3.abrupt("return", [{
                   ref: this.ref,
                   data: bufferOriginal.join(""),
                   xfa: xfa
@@ -31305,13 +31355,13 @@ var WidgetAnnotation = /*#__PURE__*/function (_Annotation2) {
 
               case 38:
               case "end":
-                return _context2.stop();
+                return _context3.stop();
             }
           }
-        }, _callee2, this);
+        }, _callee3, this);
       }));
 
-      function save(_x4, _x5, _x6) {
+      function save(_x5, _x6, _x7) {
         return _save2.apply(this, arguments);
       }
 
@@ -31320,38 +31370,38 @@ var WidgetAnnotation = /*#__PURE__*/function (_Annotation2) {
   }, {
     key: "_getAppearance",
     value: function () {
-      var _getAppearance2 = _asyncToGenerator( /*#__PURE__*/_regenerator["default"].mark(function _callee3(evaluator, task, annotationStorage) {
+      var _getAppearance2 = _asyncToGenerator( /*#__PURE__*/_regenerator["default"].mark(function _callee4(evaluator, task, annotationStorage) {
         var isPassword, value, defaultPadding, hPadding, totalHeight, totalWidth, font, fontSize, descent, vPadding, defaultAppearance, alignment, encodedString, renderedText;
-        return _regenerator["default"].wrap(function _callee3$(_context3) {
+        return _regenerator["default"].wrap(function _callee4$(_context4) {
           while (1) {
-            switch (_context3.prev = _context3.next) {
+            switch (_context4.prev = _context4.next) {
               case 0:
                 isPassword = this.hasFieldFlag(_util.AnnotationFieldFlag.PASSWORD);
 
                 if (!(!annotationStorage || isPassword)) {
-                  _context3.next = 3;
+                  _context4.next = 3;
                   break;
                 }
 
-                return _context3.abrupt("return", null);
+                return _context4.abrupt("return", null);
 
               case 3:
                 value = annotationStorage[this.data.id] && annotationStorage[this.data.id].value;
 
                 if (!(value === undefined)) {
-                  _context3.next = 6;
+                  _context4.next = 6;
                   break;
                 }
 
-                return _context3.abrupt("return", null);
+                return _context4.abrupt("return", null);
 
               case 6:
                 if (!(value === "")) {
-                  _context3.next = 8;
+                  _context4.next = 8;
                   break;
                 }
 
-                return _context3.abrupt("return", "");
+                return _context4.abrupt("return", "");
 
               case 8:
                 defaultPadding = 2;
@@ -31364,11 +31414,11 @@ var WidgetAnnotation = /*#__PURE__*/function (_Annotation2) {
                   this.data.defaultAppearanceData = (0, _default_appearance.parseDefaultAppearance)(this.data.defaultAppearance);
                 }
 
-                _context3.next = 15;
+                _context4.next = 15;
                 return this._getFontData(evaluator, task);
 
               case 15:
-                font = _context3.sent;
+                font = _context4.sent;
                 fontSize = this._computeFontSize(font, totalHeight);
                 descent = font.descent;
 
@@ -31381,43 +31431,43 @@ var WidgetAnnotation = /*#__PURE__*/function (_Annotation2) {
                 alignment = this.data.textAlignment;
 
                 if (!this.data.multiLine) {
-                  _context3.next = 24;
+                  _context4.next = 24;
                   break;
                 }
 
-                return _context3.abrupt("return", this._getMultilineAppearance(defaultAppearance, value, font, fontSize, totalWidth, totalHeight, alignment, hPadding, vPadding));
+                return _context4.abrupt("return", this._getMultilineAppearance(defaultAppearance, value, font, fontSize, totalWidth, totalHeight, alignment, hPadding, vPadding));
 
               case 24:
                 encodedString = font.encodeString(value).join("");
 
                 if (!this.data.comb) {
-                  _context3.next = 27;
+                  _context4.next = 27;
                   break;
                 }
 
-                return _context3.abrupt("return", this._getCombAppearance(defaultAppearance, font, encodedString, totalWidth, hPadding, vPadding));
+                return _context4.abrupt("return", this._getCombAppearance(defaultAppearance, font, encodedString, totalWidth, hPadding, vPadding));
 
               case 27:
                 if (!(alignment === 0 || alignment > 2)) {
-                  _context3.next = 29;
+                  _context4.next = 29;
                   break;
                 }
 
-                return _context3.abrupt("return", "/Tx BMC q BT " + defaultAppearance + " 1 0 0 1 ".concat(hPadding, " ").concat(vPadding, " Tm (").concat((0, _util.escapeString)(encodedString), ") Tj") + " ET Q EMC");
+                return _context4.abrupt("return", "/Tx BMC q BT " + defaultAppearance + " 1 0 0 1 ".concat(hPadding, " ").concat(vPadding, " Tm (").concat((0, _util.escapeString)(encodedString), ") Tj") + " ET Q EMC");
 
               case 29:
                 renderedText = this._renderText(encodedString, font, fontSize, totalWidth, alignment, hPadding, vPadding);
-                return _context3.abrupt("return", "/Tx BMC q BT " + defaultAppearance + " 1 0 0 1 0 0 Tm ".concat(renderedText) + " ET Q EMC");
+                return _context4.abrupt("return", "/Tx BMC q BT " + defaultAppearance + " 1 0 0 1 0 0 Tm ".concat(renderedText) + " ET Q EMC");
 
               case 31:
               case "end":
-                return _context3.stop();
+                return _context4.stop();
             }
           }
-        }, _callee3, this);
+        }, _callee4, this);
       }));
 
-      function _getAppearance(_x7, _x8, _x9) {
+      function _getAppearance(_x8, _x9, _x10) {
         return _getAppearance2.apply(this, arguments);
       }
 
@@ -31426,12 +31476,12 @@ var WidgetAnnotation = /*#__PURE__*/function (_Annotation2) {
   }, {
     key: "_getFontData",
     value: function () {
-      var _getFontData2 = _asyncToGenerator( /*#__PURE__*/_regenerator["default"].mark(function _callee4(evaluator, task) {
+      var _getFontData2 = _asyncToGenerator( /*#__PURE__*/_regenerator["default"].mark(function _callee5(evaluator, task) {
         var operatorList, initialState, _this$data$defaultApp, fontName, fontSize;
 
-        return _regenerator["default"].wrap(function _callee4$(_context4) {
+        return _regenerator["default"].wrap(function _callee5$(_context5) {
           while (1) {
-            switch (_context4.prev = _context4.next) {
+            switch (_context5.prev = _context5.next) {
               case 0:
                 operatorList = new _operator_list.OperatorList();
                 initialState = {
@@ -31441,21 +31491,21 @@ var WidgetAnnotation = /*#__PURE__*/function (_Annotation2) {
                   }
                 };
                 _this$data$defaultApp = this.data.defaultAppearanceData, fontName = _this$data$defaultApp.fontName, fontSize = _this$data$defaultApp.fontSize;
-                _context4.next = 5;
+                _context5.next = 5;
                 return evaluator.handleSetFont(this._fieldResources.mergedResources, [fontName, fontSize], null, operatorList, task, initialState, null);
 
               case 5:
-                return _context4.abrupt("return", initialState.font);
+                return _context5.abrupt("return", initialState.font);
 
               case 6:
               case "end":
-                return _context4.stop();
+                return _context5.stop();
             }
           }
-        }, _callee4, this);
+        }, _callee5, this);
       }));
 
-      function _getFontData(_x10, _x11) {
+      function _getFontData(_x11, _x12) {
         return _getFontData2.apply(this, arguments);
       }
 
@@ -31861,38 +31911,38 @@ var ButtonWidgetAnnotation = /*#__PURE__*/function (_WidgetAnnotation2) {
   }, {
     key: "save",
     value: function () {
-      var _save3 = _asyncToGenerator( /*#__PURE__*/_regenerator["default"].mark(function _callee5(evaluator, task, annotationStorage) {
-        return _regenerator["default"].wrap(function _callee5$(_context5) {
+      var _save3 = _asyncToGenerator( /*#__PURE__*/_regenerator["default"].mark(function _callee6(evaluator, task, annotationStorage) {
+        return _regenerator["default"].wrap(function _callee6$(_context6) {
           while (1) {
-            switch (_context5.prev = _context5.next) {
+            switch (_context6.prev = _context6.next) {
               case 0:
                 if (!this.data.checkBox) {
-                  _context5.next = 2;
+                  _context6.next = 2;
                   break;
                 }
 
-                return _context5.abrupt("return", this._saveCheckbox(evaluator, task, annotationStorage));
+                return _context6.abrupt("return", this._saveCheckbox(evaluator, task, annotationStorage));
 
               case 2:
                 if (!this.data.radioButton) {
-                  _context5.next = 4;
+                  _context6.next = 4;
                   break;
                 }
 
-                return _context5.abrupt("return", this._saveRadioButton(evaluator, task, annotationStorage));
+                return _context6.abrupt("return", this._saveRadioButton(evaluator, task, annotationStorage));
 
               case 4:
-                return _context5.abrupt("return", null);
+                return _context6.abrupt("return", null);
 
               case 5:
               case "end":
-                return _context5.stop();
+                return _context6.stop();
             }
           }
-        }, _callee5, this);
+        }, _callee6, this);
       }));
 
-      function save(_x12, _x13, _x14) {
+      function save(_x13, _x14, _x15) {
         return _save3.apply(this, arguments);
       }
 
@@ -31901,40 +31951,40 @@ var ButtonWidgetAnnotation = /*#__PURE__*/function (_WidgetAnnotation2) {
   }, {
     key: "_saveCheckbox",
     value: function () {
-      var _saveCheckbox2 = _asyncToGenerator( /*#__PURE__*/_regenerator["default"].mark(function _callee6(evaluator, task, annotationStorage) {
+      var _saveCheckbox2 = _asyncToGenerator( /*#__PURE__*/_regenerator["default"].mark(function _callee7(evaluator, task, annotationStorage) {
         var value, defaultValue, dict, xfa, name, encrypt, originalTransform, buffer;
-        return _regenerator["default"].wrap(function _callee6$(_context6) {
+        return _regenerator["default"].wrap(function _callee7$(_context7) {
           while (1) {
-            switch (_context6.prev = _context6.next) {
+            switch (_context7.prev = _context7.next) {
               case 0:
                 value = annotationStorage[this.data.id] && annotationStorage[this.data.id].value;
 
                 if (!(value === undefined)) {
-                  _context6.next = 3;
+                  _context7.next = 3;
                   break;
                 }
 
-                return _context6.abrupt("return", null);
+                return _context7.abrupt("return", null);
 
               case 3:
                 defaultValue = this.data.fieldValue && this.data.fieldValue !== "Off";
 
                 if (!(defaultValue === value)) {
-                  _context6.next = 6;
+                  _context7.next = 6;
                   break;
                 }
 
-                return _context6.abrupt("return", null);
+                return _context7.abrupt("return", null);
 
               case 6:
                 dict = evaluator.xref.fetchIfRef(this.ref);
 
                 if ((0, _primitives.isDict)(dict)) {
-                  _context6.next = 9;
+                  _context7.next = 9;
                   break;
                 }
 
-                return _context6.abrupt("return", null);
+                return _context7.abrupt("return", null);
 
               case 9:
                 xfa = {
@@ -31955,7 +32005,7 @@ var ButtonWidgetAnnotation = /*#__PURE__*/function (_WidgetAnnotation2) {
                 buffer = ["".concat(this.ref.num, " ").concat(this.ref.gen, " obj\n")];
                 (0, _writer.writeDict)(dict, buffer, originalTransform);
                 buffer.push("\nendobj\n");
-                return _context6.abrupt("return", [{
+                return _context7.abrupt("return", [{
                   ref: this.ref,
                   data: buffer.join(""),
                   xfa: xfa
@@ -31963,13 +32013,13 @@ var ButtonWidgetAnnotation = /*#__PURE__*/function (_WidgetAnnotation2) {
 
               case 21:
               case "end":
-                return _context6.stop();
+                return _context7.stop();
             }
           }
-        }, _callee6, this);
+        }, _callee7, this);
       }));
 
-      function _saveCheckbox(_x15, _x16, _x17) {
+      function _saveCheckbox(_x16, _x17, _x18) {
         return _saveCheckbox2.apply(this, arguments);
       }
 
@@ -31978,40 +32028,40 @@ var ButtonWidgetAnnotation = /*#__PURE__*/function (_WidgetAnnotation2) {
   }, {
     key: "_saveRadioButton",
     value: function () {
-      var _saveRadioButton2 = _asyncToGenerator( /*#__PURE__*/_regenerator["default"].mark(function _callee7(evaluator, task, annotationStorage) {
+      var _saveRadioButton2 = _asyncToGenerator( /*#__PURE__*/_regenerator["default"].mark(function _callee8(evaluator, task, annotationStorage) {
         var value, defaultValue, dict, xfa, name, parentBuffer, encrypt, parent, parentTransform, originalTransform, buffer, newRefs;
-        return _regenerator["default"].wrap(function _callee7$(_context7) {
+        return _regenerator["default"].wrap(function _callee8$(_context8) {
           while (1) {
-            switch (_context7.prev = _context7.next) {
+            switch (_context8.prev = _context8.next) {
               case 0:
                 value = annotationStorage[this.data.id] && annotationStorage[this.data.id].value;
 
                 if (!(value === undefined)) {
-                  _context7.next = 3;
+                  _context8.next = 3;
                   break;
                 }
 
-                return _context7.abrupt("return", null);
+                return _context8.abrupt("return", null);
 
               case 3:
                 defaultValue = this.data.fieldValue === this.data.buttonValue;
 
                 if (!(defaultValue === value)) {
-                  _context7.next = 6;
+                  _context8.next = 6;
                   break;
                 }
 
-                return _context7.abrupt("return", null);
+                return _context8.abrupt("return", null);
 
               case 6:
                 dict = evaluator.xref.fetchIfRef(this.ref);
 
                 if ((0, _primitives.isDict)(dict)) {
-                  _context7.next = 9;
+                  _context8.next = 9;
                   break;
                 }
 
-                return _context7.abrupt("return", null);
+                return _context8.abrupt("return", null);
 
               case 9:
                 xfa = {
@@ -32065,17 +32115,17 @@ var ButtonWidgetAnnotation = /*#__PURE__*/function (_WidgetAnnotation2) {
                   });
                 }
 
-                return _context7.abrupt("return", newRefs);
+                return _context8.abrupt("return", newRefs);
 
               case 24:
               case "end":
-                return _context7.stop();
+                return _context8.stop();
             }
           }
-        }, _callee7, this);
+        }, _callee8, this);
       }));
 
-      function _saveRadioButton(_x18, _x19, _x20) {
+      function _saveRadioButton(_x19, _x20, _x21) {
         return _saveRadioButton2.apply(this, arguments);
       }
 

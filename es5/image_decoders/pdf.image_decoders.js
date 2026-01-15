@@ -80,8 +80,8 @@ var _jpg = __w_pdfjs_require__(100);
 
 var _jpx = __w_pdfjs_require__(101);
 
-var pdfjsVersion = '2.7.577';
-var pdfjsBuild = '11112fa1a';
+var pdfjsVersion = '2.7.579';
+var pdfjsBuild = '29ec22dbb';
 
 /***/ }),
 /* 1 */

@@ -160,8 +160,8 @@ var _pdf_single_page_viewer = __w_pdfjs_require__(15);
 
 var _pdf_viewer = __w_pdfjs_require__(17);
 
-const pdfjsVersion = '2.7.577';
-const pdfjsBuild = '11112fa1a';
+const pdfjsVersion = '2.7.579';
+const pdfjsBuild = '29ec22dbb';
 
 /***/ }),
 /* 1 */
@@ -5299,7 +5299,7 @@ class BaseViewer {
       throw new Error("Cannot initialize BaseViewer.");
     }
 
-    const viewerVersion = '2.7.577';
+    const viewerVersion = '2.7.579';
 
     if (_pdfjsLib.version !== viewerVersion) {
       throw new Error(`The API version "${_pdfjsLib.version}" does not match the Viewer version "${viewerVersion}".`);

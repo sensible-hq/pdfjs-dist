@@ -50,8 +50,8 @@ Object.defineProperty(exports, "WorkerMessageHandler", ({
 
 var _worker = __w_pdfjs_require__(1);
 
-const pdfjsVersion = '2.7.577';
-const pdfjsBuild = '11112fa1a';
+const pdfjsVersion = '2.7.579';
+const pdfjsBuild = '29ec22dbb';
 
 /***/ }),
 /* 1 */
@@ -145,7 +145,7 @@ class WorkerMessageHandler {
     var WorkerTasks = [];
     const verbosity = (0, _util.getVerbosityLevel)();
     const apiVersion = docParams.apiVersion;
-    const workerVersion = '2.7.577';
+    const workerVersion = '2.7.579';
 
     if (apiVersion !== workerVersion) {
       throw new Error(`The API version "${apiVersion}" does not match ` + `the Worker version "${workerVersion}".`);
@@ -19516,6 +19516,7 @@ class AnnotationFactory {
       return undefined;
     }
 
+    const acroFormDict = acroForm instanceof _primitives.Dict ? acroForm : _primitives.Dict.empty;
     const id = (0, _primitives.isRef)(ref) ? ref.toString() : `annot_${idFactory.createObjId()}`;
     let subtype = dict.get("Subtype");
     subtype = (0, _primitives.isName)(subtype) ? subtype.name : null;
@@ -19526,7 +19527,8 @@ class AnnotationFactory {
       subtype,
       id,
       pdfManager,
-      acroForm: acroForm instanceof _primitives.Dict ? acroForm : _primitives.Dict.empty
+      acroForm: acroFormDict,
+      needAppearances: acroFormDict.get("NeedAppearances") === true
     };
 
     switch (subtype) {
@@ -20167,6 +20169,7 @@ class WidgetAnnotation extends Annotation {
     const dict = params.dict;
     const data = this.data;
     this.ref = params.ref;
+    this.needAppearances = params.needAppearances;
     data.annotationType = _util.AnnotationType.WIDGET;
     data.fieldName = this._constructFieldName(dict);
     data.actions = (0, _core_utils.collectActions)(params.xref, dict, _util.AnnotationActionEventType);
@@ -20287,7 +20290,15 @@ class WidgetAnnotation extends Annotation {
       return super.getOperatorList(evaluator, task, renderForms, annotationStorage);
     }
 
-    return this._getAppearance(evaluator, task, annotationStorage).then(content => {
+    return this._getAppearance(evaluator, task, annotationStorage).then(async content => {
+      if (this.needAppearances) {
+        content = await this._getAppearance(evaluator, task, {
+          [this.data.id]: {
+            value: this.data.fieldValue
+          }
+        });
+      }
+
       if (this.appearance && content === null) {
         return super.getOperatorList(evaluator, task, renderForms, annotationStorage);
       }
@@ -20303,11 +20314,16 @@ class WidgetAnnotation extends Annotation {
       const transform = getTransformMatrix(this.data.rect, bbox, matrix);
       operatorList.addOp(_util.OPS.beginAnnotation, [this.data.rect, transform, matrix]);
       const stream = new _stream.StringStream(content);
+      const fallbackFontDict = new _primitives.Dict();
+      fallbackFontDict.set("BaseFont", _primitives.Name.get("Helvetica"));
+      fallbackFontDict.set("Type", _primitives.Name.get("Font"));
+      fallbackFontDict.set("Subtype", _primitives.Name.get("Type1"));
       return evaluator.getOperatorList({
         stream,
         task,
         resources: this._fieldResources.mergedResources,
-        operatorList
+        operatorList,
+        fallbackFontDict
       }).then(function () {
         operatorList.addOp(_util.OPS.endAnnotation, []);
         return operatorList;
