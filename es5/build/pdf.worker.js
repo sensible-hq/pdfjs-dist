@@ -50,8 +50,8 @@ Object.defineProperty(exports, "WorkerMessageHandler", ({
 
 var _worker = __w_pdfjs_require__(1);
 
-var pdfjsVersion = '2.7.579';
-var pdfjsBuild = '29ec22dbb';
+var pdfjsVersion = '2.7.583';
+var pdfjsBuild = '2f63756c1';
 
 /***/ }),
 /* 1 */
@@ -194,7 +194,7 @@ var WorkerMessageHandler = /*#__PURE__*/function () {
       var WorkerTasks = [];
       var verbosity = (0, _util.getVerbosityLevel)();
       var apiVersion = docParams.apiVersion;
-      var workerVersion = '2.7.579';
+      var workerVersion = '2.7.583';
 
       if (apiVersion !== workerVersion) {
         throw new Error("The API version \"".concat(apiVersion, "\" does not match ") + "the Worker version \"".concat(workerVersion, "\"."));
@@ -18312,7 +18312,7 @@ var Stream = function StreamClosure() {
       this.start = this.pos;
     },
     makeSubStream: function Stream_makeSubStream(start, length, dict) {
-      return new Stream(this.bytes.buffer, start, length, dict);
+      return new Stream(this.bytes.buffer, this.bytes.byteOffset + start, length, dict);
     }
   };
   return Stream;

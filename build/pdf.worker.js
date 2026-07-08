@@ -50,8 +50,8 @@ Object.defineProperty(exports, "WorkerMessageHandler", ({
 
 var _worker = __w_pdfjs_require__(1);
 
-const pdfjsVersion = '2.7.579';
-const pdfjsBuild = '29ec22dbb';
+const pdfjsVersion = '2.7.583';
+const pdfjsBuild = '2f63756c1';
 
 /***/ }),
 /* 1 */
@@ -145,7 +145,7 @@ class WorkerMessageHandler {
     var WorkerTasks = [];
     const verbosity = (0, _util.getVerbosityLevel)();
     const apiVersion = docParams.apiVersion;
-    const workerVersion = '2.7.579';
+    const workerVersion = '2.7.583';
 
     if (apiVersion !== workerVersion) {
       throw new Error(`The API version "${apiVersion}" does not match ` + `the Worker version "${workerVersion}".`);
@@ -8128,7 +8128,7 @@ var Stream = function StreamClosure() {
       this.start = this.pos;
     },
     makeSubStream: function Stream_makeSubStream(start, length, dict) {
-      return new Stream(this.bytes.buffer, start, length, dict);
+      return new Stream(this.bytes.buffer, this.bytes.byteOffset + start, length, dict);
     }
   };
   return Stream;
