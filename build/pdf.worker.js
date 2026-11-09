@@ -50,8 +50,8 @@ Object.defineProperty(exports, "WorkerMessageHandler", ({
 
 var _worker = __w_pdfjs_require__(1);
 
-const pdfjsVersion = '2.7.583';
-const pdfjsBuild = '2f63756c1';
+const pdfjsVersion = '2.7.586';
+const pdfjsBuild = '00043fa5c';
 
 /***/ }),
 /* 1 */
@@ -145,7 +145,7 @@ class WorkerMessageHandler {
     var WorkerTasks = [];
     const verbosity = (0, _util.getVerbosityLevel)();
     const apiVersion = docParams.apiVersion;
-    const workerVersion = '2.7.583';
+    const workerVersion = '2.7.586';
 
     if (apiVersion !== workerVersion) {
       throw new Error(`The API version "${apiVersion}" does not match ` + `the Worker version "${workerVersion}".`);
@@ -8312,6 +8312,7 @@ exports.DecodeStream = DecodeStream;
 
 var StreamsSequenceStream = function StreamsSequenceStreamClosure() {
   function StreamsSequenceStream(streams) {
+    streams = streams.filter(_primitives.isStream);
     this.streams = streams;
     let maybeLength = 0;
 
