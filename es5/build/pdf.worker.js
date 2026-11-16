@@ -50,8 +50,8 @@ Object.defineProperty(exports, "WorkerMessageHandler", ({
 
 var _worker = __w_pdfjs_require__(1);
 
-var pdfjsVersion = '2.7.586';
-var pdfjsBuild = '00043fa5c';
+var pdfjsVersion = '2.7.589';
+var pdfjsBuild = '9c35e5941';
 
 /***/ }),
 /* 1 */
@@ -194,7 +194,7 @@ var WorkerMessageHandler = /*#__PURE__*/function () {
       var WorkerTasks = [];
       var verbosity = (0, _util.getVerbosityLevel)();
       var apiVersion = docParams.apiVersion;
-      var workerVersion = '2.7.586';
+      var workerVersion = '2.7.589';
 
       if (apiVersion !== workerVersion) {
         throw new Error("The API version \"".concat(apiVersion, "\" does not match ") + "the Worker version \"".concat(workerVersion, "\"."));
@@ -16925,7 +16925,7 @@ var Parser = /*#__PURE__*/function () {
               var key = this.buf1.name;
               this.shift();
 
-              if ((0, _primitives.isEOF)(this.buf1)) {
+              if ((0, _primitives.isEOF)(this.buf1) || (0, _primitives.isCmd)(this.buf1, ">>")) {
                 break;
               }
 
